@@ -16,7 +16,7 @@ module.exports = function PostGraphileFulltextFilterPlugin(builder) {
         const columnName =
           attr.kind === "procedure"
             ? attr.name.substr(table.name.length + 1)
-            : this._columnName(attr, { skipRowId: true }); // eslint-disable-line no-underscore-dangle
+            : this._columnName(attr, { skipRowId: true });
         return this.constantCase(
           `${columnName}_rank_${ascending ? "asc" : "desc"}`
         );
@@ -168,10 +168,8 @@ module.exports = function PostGraphileFulltextFilterPlugin(builder) {
               ) {
                 return;
               }
-              const [
-                identifier,
-                tsQueryString,
-              ] = parentQueryBuilder.__fts_ranks[baseFieldName];
+              const [identifier, tsQueryString] =
+                parentQueryBuilder.__fts_ranks[baseFieldName];
               queryBuilder.select(
                 sql.fragment`ts_rank(${identifier}, to_tsquery(${sql.value(
                   tsQueryString
@@ -194,7 +192,7 @@ module.exports = function PostGraphileFulltextFilterPlugin(builder) {
     const tsvFields = tsvColumns.reduce((memo, attr) => {
       const fieldName = inflection.column(attr);
       const rankFieldName = inflection.pgTsvRank(fieldName);
-      memo[rankFieldName] = newRankField(fieldName, rankFieldName); // eslint-disable-line no-param-reassign
+      memo[rankFieldName] = newRankField(fieldName, rankFieldName);
 
       return memo;
     }, {});
@@ -207,7 +205,7 @@ module.exports = function PostGraphileFulltextFilterPlugin(builder) {
         table
       );
       const rankFieldName = inflection.pgTsvRank(fieldName);
-      memo[rankFieldName] = newRankField(fieldName, rankFieldName); // eslint-disable-line no-param-reassign
+      memo[rankFieldName] = newRankField(fieldName, rankFieldName);
 
       return memo;
     }, {});
@@ -293,23 +291,20 @@ module.exports = function PostGraphileFulltextFilterPlugin(builder) {
             ) {
               return sql.fragment`1`;
             }
-            const [identifier, tsQueryString] = queryBuilder.__fts_ranks[
-              fieldName
-            ];
+            const [identifier, tsQueryString] =
+              queryBuilder.__fts_ranks[fieldName];
             return sql.fragment`ts_rank(${identifier}, to_tsquery(${sql.value(
               tsQueryString
             )}))`;
           };
 
           memo[ascFieldName] = {
-            // eslint-disable-line no-param-reassign
             value: {
               alias: `${ascFieldName.toLowerCase()}`,
               specs: [[findExpr, true]],
             },
           };
           memo[descFieldName] = {
-            // eslint-disable-line no-param-reassign
             value: {
               alias: `${descFieldName.toLowerCase()}`,
               specs: [[findExpr, false]],
